@@ -320,6 +320,9 @@ class Vue {
         }
 
         echo "</select>
+                <div style='margin: 10px 0; text-align:right;'>
+                    <a href='index.php?action=ajouterLieu&return=formulaireAjouterHoraireHebdo' class='btn-submit'>+ Ajouter un lieu</a>
+                </div>
                 <label for='arrive'>Heure d'arriv&eacute;e :</label>
                 <input type='time' name='arrive' id='arrive' required>
 
@@ -370,6 +373,9 @@ class Vue {
         }
 
         echo "</select>
+                <div style='margin: 10px 0; text-align:right;'>
+                    <a href='index.php?action=ajouterLieu&return=formulaireAjouterHoraireHebdo' class='btn-submit'>+ Ajouter un lieu</a>
+                </div>
                 <label for='arrive'>Heure d'arriv&eacute;e :</label>
                 <input type='time' name='arrive' id='arrive' value='{$horaire['arrive']}' required>
 

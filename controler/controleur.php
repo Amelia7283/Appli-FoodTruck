@@ -485,6 +485,7 @@ class Controleur {
 			echo "<p style='color:red'>Accès refusé.</p>";
 			return;
 		}
+		$returnAction = $_GET['return'] ?? 'formulairePresence';
 
 		if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			$cp = $_POST['cp'];
@@ -501,7 +502,7 @@ class Controleur {
 
 			$idLieu = $this->lieu->ajouterLieu($cp, $ville, $rue, $coordLat, $coordLong);
 			$_SESSION['dernierLieuAjoute'] = $idLieu;
-			header("Location: index.php?action=formulairePresence");
+			header("Location: index.php?action=" . urlencode($returnAction));
 			exit;
 		} 
 		else {
