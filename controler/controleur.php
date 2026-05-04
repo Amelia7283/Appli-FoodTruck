@@ -123,10 +123,10 @@ class Controleur {
 				} 
 				elseif ($client["role"] === "vendeur") {
 					$_SESSION["connexion"] = $client;
-					$lieux = $this->lieu->getAll();
+					$lieux = $this->lieu->getAllByVendeur($client['idUtilisateur']);
 
 					if (empty($lieux)) {
-						header("Location: index.php?action=ajouterLieu");
+						header("Location: index.php?action=ajouterLieu&return=vendeur");
 						exit;
 					} 
 					else {
@@ -215,7 +215,7 @@ class Controleur {
 		$idLieu = $_SESSION['dernierLieuAjoute'] ?? ($dernierLieu['idLieu'] ?? null);
 
 		$presences = $this->presence->getByVendeur($vendeur['idUtilisateur']);
-		$lieux = $this->lieu->getAll();
+		$lieux = $this->lieu->getAllByVendeur($vendeur['idUtilisateur']);
 		$horairesHebdo = $this->horaireHebdo->getByVendeur($vendeur['idUtilisateur']);
 
 		$this->vue->pageVendeur($estValide, $presences, $lieux, $horairesHebdo);
@@ -256,7 +256,7 @@ class Controleur {
 			return;
 		}
 
-		$lieux = $this->lieu->getAll();
+		$lieux = $this->lieu->getAllByVendeur($_SESSION['connexion']['idUtilisateur']);
 		$this->vue->formulaireAjouterHoraireHebdo($lieux);
 	}
 
@@ -295,7 +295,7 @@ class Controleur {
 			return;
 		}
 
-		$lieux = $this->lieu->getAll();
+		$lieux = $this->lieu->getAllByVendeur($_SESSION['connexion']['idUtilisateur']);
 		$this->vue->formulaireModifierHoraireHebdo($horaire, $lieux);
 	}
 
@@ -388,7 +388,7 @@ class Controleur {
 			return;
 		}
 
-		$lieux = $this->lieu->getAll();
+		$lieux = $this->lieu->getAllByVendeur($_SESSION['connexion']['idUtilisateur']);
 		$this->vue->formulairePresence($lieux);
 	}
 
@@ -409,7 +409,7 @@ class Controleur {
 			$this->erreur404();
 			return;
 		}
-		$lieux = $this->lieu->getAll();
+		$lieux = $this->lieu->getAllByVendeur($_SESSION['connexion']['idUtilisateur']);
 		$this->vue->formulaireModifierPresence($presence, $lieux);
 	}
 
@@ -476,7 +476,7 @@ class Controleur {
 		$this->vue = new Vue();
         $this->lieu = new Lieu();
 
-        $lieux = $this->lieu->getAll();
+        $lieux = $this->lieu->getAllByVendeur($_SESSION['connexion']['idUtilisateur']);
         $this->vue->pageLieux($lieux);
     }
 
@@ -496,17 +496,19 @@ class Controleur {
 
 			if ($coordLat === null || $coordLong === null || $coordLat === '' || $coordLong === '') {
 				echo "<p style='color:red'>Veuillez sélectionner un point sur la carte.</p>";
-				$this->vue->ajouterLieu();
+				$villes = $this->lieu->getVillesByVendeur($_SESSION['connexion']['idUtilisateur']);
+				$this->vue->ajouterLieu($returnAction, $villes);
 				return;
 			}
 
-			$idLieu = $this->lieu->ajouterLieu($cp, $ville, $rue, $coordLat, $coordLong);
+			$idLieu = $this->lieu->ajouterLieu($cp, $ville, $rue, $coordLat, $coordLong, $_SESSION['connexion']['idUtilisateur']);
 			$_SESSION['dernierLieuAjoute'] = $idLieu;
 			header("Location: index.php?action=" . urlencode($returnAction));
 			exit;
 		} 
 		else {
-			$this->vue->ajouterLieu();
+			$villes = $this->lieu->getVillesByVendeur($_SESSION['connexion']['idUtilisateur']);
+			$this->vue->ajouterLieu($returnAction, $villes);
 			exit;
 		}
 	}

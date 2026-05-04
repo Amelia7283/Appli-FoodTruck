@@ -430,21 +430,27 @@ class Vue {
         echo "</div>";
         $this->fin();
     }
-
-    public function ajouterLieu() {
+    public function ajouterLieu($returnAction = 'formulairePresence', $villes = []) {
         $this->entete();
+
+        $optionsVille = '';
+        foreach ($villes as $ville) {
+            $villeSafe = htmlspecialchars($ville, ENT_QUOTES, 'UTF-8');
+            $optionsVille .= "<option value=\"{$villeSafe}\"></option>";
+        }
 
         echo '
         <div class="form-container">
             <h2>Ajouter un lieu</h2>
 
-            <form method="POST" action="index.php?action=ajouterLieu" class="form-vendeur">
+            <form method="POST" action="index.php?action=ajouterLieu&amp;return=' . urlencode($returnAction) . '" class="form-vendeur">
 
                 <label for="cp">Code postal :</label>
                 <input type="text" name="cp" id="cp" required>
 
                 <label for="ville">Ville :</label>
-                <input type="text" name="ville" id="ville" required>
+                <input type="text" name="ville" id="ville" list="villes-connues" required>
+                <datalist id="villes-connues">' . $optionsVille . '</datalist>
 
                 <label for="rue">Rue :</label>
                 <input type="text" name="rue" id="rue" required>
@@ -458,7 +464,7 @@ class Vue {
             </form>
 
             <p style="text-align:center;margin-top:20px;">
-                <a href="index.php?action=formulairePresence">← Retour au formulaire de présence</a>
+                <a href="index.php?action=' . htmlspecialchars($returnAction, ENT_QUOTES, 'UTF-8') . '">&larr; Retour</a>
             </p>
 
             <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />

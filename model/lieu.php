@@ -13,17 +13,40 @@ class Lieu {
             );
             $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         }
+
+        $this->ensureSchema();
     }
 
-    public function ajouterLieu($cp, $ville, $rue, $coordLat, $coordLong) {
-    $stmt = $this->db->prepare("INSERT INTO Lieu (cp, ville, rue, coordLat, coordLong) VALUES (?, ?, ?, ?, ?)");
-    $stmt->execute([$cp, $ville, $rue, $coordLat, $coordLong]);
-    return $this->db->lastInsertId();
-}
+    private function ensureSchema() {
+        $columns = $this->db->query("SHOW COLUMNS FROM Lieu")->fetchAll(PDO::FETCH_COLUMN);
+
+        if (!in_array('idUtilisateur', $columns, true)) {
+            $this->db->exec("ALTER TABLE Lieu ADD COLUMN idUtilisateur INT NULL");
+            $this->db->exec("ALTER TABLE Lieu ADD INDEX idx_lieu_utilisateur (idUtilisateur)");
+        }
+    }
+
+    public function ajouterLieu($cp, $ville, $rue, $coordLat, $coordLong, $idUtilisateur) {
+        $stmt = $this->db->prepare("INSERT INTO Lieu (cp, ville, rue, coordLat, coordLong, idUtilisateur) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$cp, $ville, $rue, $coordLat, $coordLong, $idUtilisateur]);
+        return $this->db->lastInsertId();
+    }
 
     public function getAll() {
         $stmt = $this->db->query("SELECT * FROM Lieu ORDER BY ville, rue");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getAllByVendeur($idUtilisateur) {
+        $stmt = $this->db->prepare("SELECT * FROM Lieu WHERE idUtilisateur = ? ORDER BY ville, rue");
+        $stmt->execute([$idUtilisateur]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getVillesByVendeur($idUtilisateur) {
+        $stmt = $this->db->prepare("SELECT DISTINCT ville FROM Lieu WHERE idUtilisateur = ? AND ville IS NOT NULL AND ville <> '' ORDER BY ville");
+        $stmt->execute([$idUtilisateur]);
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
 
     public function getById($idLieu) {
@@ -42,8 +65,9 @@ class Lieu {
         return $stmt->execute([$cp, $ville, $rue, $idLieu]);
     }
 
-    public function dernierLieuAjouter() {
-        $stmt = $this->db->query("SELECT * FROM Lieu ORDER BY idLieu DESC LIMIT 1");
+    public function dernierLieuAjouter($idUtilisateur) {
+        $stmt = $this->db->prepare("SELECT * FROM Lieu WHERE idUtilisateur = ? ORDER BY idLieu DESC LIMIT 1");
+        $stmt->execute([$idUtilisateur]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 }
