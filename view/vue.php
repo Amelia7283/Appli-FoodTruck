@@ -200,8 +200,6 @@ class Vue {
             echo "<p class='alerte'>Votre compte est en attente de validation par un administrateur.</p>";
         } else {
             echo "<section class='table-section'>";
-            echo "<h3>Horaires hebdomadaires</h3>";
-            echo "<p class='center-text'>Ajoutez un cr&eacute;neau hebdomadaire : le syst&egrave;me pr&eacute;pare ensuite automatiquement les pr&eacute;sences des prochaines semaines.</p>";
             echo "<section class='actions-section' style='text-align:center;margin-bottom:20px;'>
                     <a href='index.php?action=formulaireAjouterHoraireHebdo' class='btn-submit'>Enregistrer un horaire hebdomadaire</a>
                 </section>";
