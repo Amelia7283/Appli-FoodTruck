@@ -19,9 +19,10 @@ class Utilisateur {
     public function ajouterUtilisateur($nom, $prenom, $email, $telephone, $mdp, $role, $localisationClient = null, $nomFoodTruck = null) {
         $hashed = password_hash($mdp, PASSWORD_BCRYPT);
 
-        $stmt = $this->db->prepare("INSERT INTO Utilisateur (nom, prenom, email, telephone, mdp, role) 
-                                    VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$nom, $prenom, $email, $telephone, $hashed, $role]);
+        $stmt = $this->db->prepare("INSERT INTO Utilisateur
+                                    (nom, prenom, email, telephone, mdp, dateDernierChangementMdp, role)
+                                    VALUES (?, ?, ?, ?, ?, NOW(), ?)");
+        $stmt->execute([$nom, $prenom, $email, $telephone, $hashed, $dateDernierChangementMdp, $role]);
         $idUtilisateur = $this->db->lastInsertId();
 
         if ($role === 'client') {
@@ -78,6 +79,51 @@ class Utilisateur {
         $stmt = $this->db->prepare("SELECT * FROM Utilisateur WHERE LOWER(email) = LOWER(?) ORDER BY idUtilisateur DESC LIMIT 1");
         $stmt->execute([$email]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getById($idUtilisateur) {
+        $stmt = $this->db->prepare("SELECT * FROM Utilisateur WHERE idUtilisateur = ?");
+        $stmt->execute([$idUtilisateur]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function motDePasseDejaUtilise($idUtilisateur, $nouveauMdp) {
+        $utilisateur = $this->getById($idUtilisateur);
+
+        if (!$utilisateur) {
+            return false;
+        }
+
+        if (password_verify($nouveauMdp, $utilisateur['mdp'])) {
+            return true;
+        }
+
+        $stmt = $this->db->prepare("SELECT ancienMdp FROM historiquemdp WHERE idUtilisateur = ?");
+        $stmt->execute([$idUtilisateur]);
+        $anciensMdp = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+        foreach ($anciensMdp as $ancienMdp) {
+            if (password_verify($nouveauMdp, $ancienMdp)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function changerMotDePasse($idUtilisateur, $nouveauMdp) {
+        $utilisateur = $this->getById($idUtilisateur);
+
+        if (!$utilisateur) {
+            return false;
+        }
+
+        $nouveauHash = password_hash($nouveauMdp, PASSWORD_BCRYPT);
+
+        $stmtUpdate = $this->db->prepare("UPDATE Utilisateur
+                                          SET mdp = ?, dateDernierChangementMdp = NOW()
+                                          WHERE idUtilisateur = ?");
+        return $stmtUpdate->execute([$nouveauHash, $idUtilisateur]);
     }
 
     public function emailExiste($email) {

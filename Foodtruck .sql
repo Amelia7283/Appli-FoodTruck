@@ -142,6 +142,22 @@ CREATE TABLE IF NOT EXISTS `logsconnexion` (
 -- --------------------------------------------------------
 
 --
+-- Structure de la table `historiquemdp`
+--
+
+DROP TABLE IF EXISTS `historiquemdp`;
+CREATE TABLE IF NOT EXISTS `historiquemdp` (
+  `idHistoriqueMdp` int NOT NULL AUTO_INCREMENT,
+  `idUtilisateur` int NOT NULL,
+  `ancienMdp` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `dateChangement` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`idHistoriqueMdp`),
+  KEY `idUtilisateur` (`idUtilisateur`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Structure de la table `message`
 --
 
@@ -260,6 +276,7 @@ CREATE TABLE IF NOT EXISTS `utilisateur` (
   `telephone` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
   `mdp` varchar(150) COLLATE utf8mb4_general_ci NOT NULL,
   `role` enum('client','vendeur','admin') COLLATE utf8mb4_general_ci NOT NULL,
+  `dateDernierChangementMdp` datetime DEFAULT NULL,
   PRIMARY KEY (`idUtilisateur`)
 ) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -358,6 +375,12 @@ ALTER TABLE `logsconnexion`
   ADD CONSTRAINT `LogsConnexion_ibfk_1` FOREIGN KEY (`idUtilisateur`) REFERENCES `utilisateur` (`idUtilisateur`);
 
 --
+-- Contraintes pour la table `historiquemdp`
+--
+ALTER TABLE `historiquemdp`
+  ADD CONSTRAINT `HistoriqueMdp_ibfk_1` FOREIGN KEY (`idUtilisateur`) REFERENCES `utilisateur` (`idUtilisateur`) ON DELETE CASCADE;
+
+--
 -- Contraintes pour la table `message`
 --
 ALTER TABLE `message`
@@ -375,7 +398,6 @@ ALTER TABLE `reponse`
 --
 ALTER TABLE `vendeur`
   ADD CONSTRAINT `Vendeur_ibfk_1` FOREIGN KEY (`idUtilisateur`) REFERENCES `utilisateur` (`idUtilisateur`);
-COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

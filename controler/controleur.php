@@ -162,6 +162,65 @@ class Controleur {
         exit;
     }
 
+	public function formulaireChangerMdp() {
+		if (!isset($_SESSION['connexion'])) {
+			echo "<p style='color:red;text-align:center;'>Vous devez etre connecte.</p>";
+			return;
+		}
+
+		$this->vue->formulaireChangerMdp();
+	}
+
+	public function changerMdp() {
+		if (!isset($_SESSION['connexion'])) {
+			echo "<p style='color:red;text-align:center;'>Vous devez etre connecte.</p>";
+			return;
+		}
+
+		if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+			header("Location: index.php?action=formulaireChangerMdp");
+			exit;
+		}
+
+		$ancienMdp = $_POST['ancienMdp'] ?? '';
+		$nouveauMdp = $_POST['nouveauMdp'] ?? '';
+		$confirmationMdp = $_POST['confirmationMdp'] ?? '';
+		$idUtilisateur = $_SESSION['connexion']['idUtilisateur'];
+
+		$utilisateurModel = new Utilisateur();
+		$utilisateur = $utilisateurModel->getById($idUtilisateur);
+
+		if (!$utilisateur || !password_verify($ancienMdp, $utilisateur['mdp'])) {
+			echo "<p style='color:red;text-align:center;'>Ancien mot de passe incorrect.</p>";
+			$this->vue->formulaireChangerMdp();
+			return;
+		}
+
+		if (strlen($nouveauMdp) < 8) {
+			echo "<p style='color:red;text-align:center;'>Le nouveau mot de passe doit contenir au moins 8 caracteres.</p>";
+			$this->vue->formulaireChangerMdp();
+			return;
+		}
+
+		if ($nouveauMdp !== $confirmationMdp) {
+			echo "<p style='color:red;text-align:center;'>Les nouveaux mots de passe ne correspondent pas.</p>";
+			$this->vue->formulaireChangerMdp();
+			return;
+		}
+
+		if ($utilisateurModel->motDePasseDejaUtilise($idUtilisateur, $nouveauMdp)) {
+			echo "<p style='color:red;text-align:center;'>Vous avez deja utilise ce mot de passe.</p>";
+			$this->vue->formulaireChangerMdp();
+			return;
+		}
+
+		$utilisateurModel->changerMotDePasse($idUtilisateur, $nouveauMdp);
+		$_SESSION['connexion'] = $utilisateurModel->getById($idUtilisateur);
+
+		echo "<p style='color:green;text-align:center;'>Mot de passe modifie avec succes.</p>";
+		$this->vue->formulaireChangerMdp();
+	}
+
 	public function validerVendeur($idV) {
 		if (empty($_SESSION['connexion']) || $_SESSION['connexion']['role'] !== 'admin') {
 			echo "<p style='color:red;text-align:center;'>Accès refusé.</p>";

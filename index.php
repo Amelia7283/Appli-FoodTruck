@@ -35,6 +35,14 @@
 				$controleur->inscription();
 				break;
 
+			case "formulaireChangerMdp":
+				$controleur->formulaireChangerMdp();
+				break;
+
+			case "changerMdp":
+				$controleur->changerMdp();
+				break;
+
 			case 'admin': 
 				$controleur->pageAdmin(); 
 				break;

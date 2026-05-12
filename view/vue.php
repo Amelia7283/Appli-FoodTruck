@@ -22,6 +22,7 @@ class Vue {
             } 
             else {
             echo "
+                    <a href='index.php?action=formulaireChangerMdp'>Changer mot de passe</a> |
                     <a href='index.php?action=deconnexion'>Déconnexion</a>";
             }
         echo "
@@ -130,6 +131,26 @@ class Vue {
                     <button type='submit' class='btn-submit'>Connexion</button>
                 </form>
                 <p class='center-text'>Pas encore inscrit ? <a href='index.php?action=inscription'>Inscrivez-vous ici</a></p>
+              </div>";
+        $this->fin();
+    }
+
+    public function formulaireChangerMdp() {
+        $this->entete();
+        echo "<div class='contenu'>
+                <h2 class='page-title'>Changer mon mot de passe</h2>
+                <form method='POST' action='index.php?action=changerMdp' class='form'>
+                    <label for='ancienMdp'>Ancien mot de passe</label>
+                    <input type='password' name='ancienMdp' id='ancienMdp' required>
+
+                    <label for='nouveauMdp'>Nouveau mot de passe</label>
+                    <input type='password' name='nouveauMdp' id='nouveauMdp' minlength='8' required>
+
+                    <label for='confirmationMdp'>Confirmer le nouveau mot de passe</label>
+                    <input type='password' name='confirmationMdp' id='confirmationMdp' minlength='8' required>
+
+                    <button type='submit' class='btn-submit'>Modifier le mot de passe</button>
+                </form>
               </div>";
         $this->fin();
     }
