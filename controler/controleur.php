@@ -196,8 +196,8 @@ class Controleur {
 			return;
 		}
 
-		if (strlen($nouveauMdp) < 8) {
-			echo "<p style='color:red;text-align:center;'>Le nouveau mot de passe doit contenir au moins 8 caracteres.</p>";
+		if (strlen($nouveauMdp)<12) {
+			echo "<p style='color:red;text-align:center;'>Le nouveau mot de passe doit contenir au moins 12 caracteres.</p>";
 			$this->vue->formulaireChangerMdp();
 			return;
 		}
